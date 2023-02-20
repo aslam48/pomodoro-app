@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import { Stop } from 'twilio/lib/twiml/VoiceResponse';
 import {TimerCountDowwnDisplay} from './TimerCountDowwnDisplay';
@@ -12,6 +12,7 @@ export default function App() {
 const [timerCount, setTimmerCount] = useState<number>(time_In_Minute)
 const [timerInterval, setTimerInterval] = useState<NodeJS.Timer | null>(null)
 const [isTimerRunning, setTimerRunning] = useState<boolean>(false)
+const [timerMode, setTimerMode] = useState<"Focus"  | "Break">("Focus")
 
   const startTimer = () => {
     setTimerRunning(true)
@@ -26,9 +27,23 @@ const [isTimerRunning, setTimerRunning] = useState<boolean>(false)
   setTimerRunning(false)
   }
 
+  useEffect(() => {
+    if (timerCount === 0 ){
+      if (timerMode === 'Focus'){
+        setTimerMode("Break")
+        setTimmerCount(break_Time_minute)
+      } else {
+        setTimerMode('Focus')
+        setTimmerCount(time_In_Minute)
+      }
+      stopTimer()
+    }
+  },[timerCount])
+  
+  // {timerMode === 'Focus' ?  " i" : "o"}{''}
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+    <View style={{...styles.container, ...{backgroundColor: timerMode === 'Break' ? '#2a9d8f' : '#d95550'}}}>
+      <Text style={styles.text}>{timerMode} Time </Text>
       <StatusBar style="auto" />
       <TimerToggleButton isTimerRunning={isTimerRunning} startTimer={startTimer} stopTimer={stopTimer}/>
       <TimerCountDowwnDisplay  timerDate = {new Date(timerCount)}/>
@@ -39,10 +54,14 @@ const [isTimerRunning, setTimerRunning] = useState<boolean>(false)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#d95550',
     alignItems: 'center',
     justifyContent: 'center',
   },
+
+  text: {
+    color: "#fff"
+  }
 
   
 });
